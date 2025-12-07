@@ -1,4 +1,6 @@
 import { Product } from "@/types";
+import { Button } from "@/components/ui/button";
+import { ShoppingCart } from "lucide-react";
 
 interface ProductCardProps {
   product: Product;
@@ -29,16 +31,24 @@ export function ProductCard({ product }: ProductCardProps) {
       </div>
 
       {/* Rodapé do Card */}
-      <div className="flex justify-between items-center mt-4 pt-4 border-t border-gray-100">
-        <span className="text-xs font-medium bg-blue-50 text-blue-700 px-2 py-1 rounded-full">
-          {product.categories?.name || "Geral"}
-        </span>
-        <span className="font-bold text-green-700 text-lg">
-          {new Intl.NumberFormat("pt-BR", {
-            style: "currency",
-            currency: "BRL",
-          }).format(product.price)}
-        </span>
+      <div className="flex justify-between items-center mt-4 pt-4 border-t border-gray-100 gap-4">
+        <div className="flex flex-col">
+          <span className="text-xs text-gray-500">Preço</span>
+          <span className="font-bold text-green-700 text-lg">
+            {new Intl.NumberFormat("pt-BR", {
+              style: "currency",
+              currency: "BRL",
+            }).format(product.price)}
+          </span>
+        </div>
+
+        {/* Usando o componente Button do Shadcn */}
+        <Button
+          size="sm"
+          className="bg-orange-600 hover:bg-orange-700 text-white"
+        >
+          Adicionar
+        </Button>
       </div>
     </div>
   );
