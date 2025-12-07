@@ -1,41 +1,33 @@
 import { supabase } from "@/lib/supabase";
+import { Product } from "@/types";
+import { ProductCard } from "@/components/products/ProductCard";
+
+export const revalidate = 0; // Opcional: Garante que a página sempre busque dados novos (sem cache estático)
 
 export default async function Home() {
-  // 1. Buscando os produtos no Supabase
-  // .select('*, categories(*)') significa: Traga tudo de produtos E os dados da categoria associada
   const { data: products, error } = await supabase
     .from("products")
-    .select("*, categories(name)");
+    .select("*, categories(name)")
+    .returns<Product[]>();
 
-  // Se der erro no console, vamos ver o que é
   if (error) {
-    console.error("Erro ao buscar produtos:", error);
+    console.error("Erro ao carregar produtos:", error);
+    return <div className="p-10 text-red-500">Erro ao carregar cardápio.</div>;
   }
 
   return (
-    <main className="p-10">
-      <h1 className="text-3xl font-bold mb-8">Cardápio Digital</h1>
+    <main className="max-w-7xl mx-auto p-8">
+      <header className="mb-10 text-center">
+        <h1 className="text-4xl font-bold text-gray-900 mb-2">
+          Nosso Cardápio
+        </h1>
+        <p className="text-gray-600">Escolha suas delícias favoritas</p>
+      </header>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
         {products?.map((product) => (
-          <div key={product.id} className="border p-4 rounded-lg shadow-sm">
-            {/* Imagem Placeholder se não tiver foto */}
-            <div className="h-40 bg-gray-200 mb-4 rounded-md"></div>
-
-            <h2 className="text-xl font-semibold">{product.name}</h2>
-            <p className="text-gray-500 text-sm">{product.description}</p>
-
-            <div className="mt-4 flex justify-between items-center">
-              {/* O TypeScript pode reclamar que categories é um array, vamos tratar isso depois */}
-              <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
-                {/* @ts-ignore - Apenas para testar agora */}
-                {product.categories?.name}
-              </span>
-              <span className="font-bold text-green-600">
-                R$ {product.price}
-              </span>
-            </div>
-          </div>
+          // Passamos o dado "product" para dentro do componente
+          <ProductCard key={product.id} product={product} />
         ))}
       </div>
     </main>
