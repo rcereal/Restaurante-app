@@ -1,12 +1,15 @@
+"use client";
 import { Product } from "@/types";
 import { Button } from "@/components/ui/button";
-import { ShoppingCart } from "lucide-react";
+import { useCartStore } from "@/store/use-cart-store";
 
 interface ProductCardProps {
   product: Product;
 }
 
 export function ProductCard({ product }: ProductCardProps) {
+  const addToCart = useCartStore((state) => state.addToCart);
+
   return (
     <div className="border bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition-shadow flex flex-col h-full">
       {/* Área da Imagem */}
@@ -46,6 +49,10 @@ export function ProductCard({ product }: ProductCardProps) {
         <Button
           size="sm"
           className="bg-orange-600 hover:bg-orange-700 text-white"
+          onClick={() => {
+            addToCart(product);
+            alert("Adicionado: " + product.name); // Feedback temporário
+          }}
         >
           Adicionar
         </Button>
