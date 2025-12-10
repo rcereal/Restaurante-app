@@ -38,12 +38,26 @@ export const useCartStore = create<CartState>((set) => ({
       return { items: [...state.items, { ...product, quantity: 1 }] };
     }),
 
-  // AÇÃO: Remover item
+  // NOVA LÓGICA: Se tiver mais de 1, diminui. Se for 1, remove.
   removeFromCart: (productId) =>
-    set((state) => ({
-      items: state.items.filter((item) => item.id !== productId),
-    })),
+    set((state) => {
+      const existingItem = state.items.find((item) => item.id === productId);
 
-  // AÇÃO: Limpar tudo
+      if (existingItem && existingItem.quantity > 1) {
+        return {
+          items: state.items.map((item) =>
+            item.id === productId
+              ? { ...item, quantity: item.quantity - 1 }
+              : item
+          ),
+        };
+      }
+
+      // Se só tem 1, remove da lista
+      return {
+        items: state.items.filter((item) => item.id !== productId),
+      };
+    }),
+
   clearCart: () => set({ items: [] }),
 }));
