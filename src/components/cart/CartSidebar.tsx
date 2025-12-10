@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import {
   Sheet,
   SheetContent,
@@ -9,22 +10,45 @@ import {
   SheetFooter,
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { ShoppingCart, Minus, Plus } from "lucide-react";
 import { useCartStore } from "@/store/use-cart-store";
+import { createOrder } from "@/actions/create-order"; // Nossa função nova!
 
 export function CartSidebar() {
-  const { items, addToCart, removeFromCart } = useCartStore();
+  const { items, addToCart, removeFromCart, clearCart } = useCartStore();
+  const [checkoutName, setCheckoutName] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Calcula o total da compra
   const total = items.reduce(
     (acc, item) => acc + item.price * item.quantity,
     0
   );
   const itemCount = items.reduce((acc, item) => acc + item.quantity, 0);
 
+  // Função que roda ao clicar em "Finalizar"
+  async function handleCheckout() {
+    if (!checkoutName.trim()) return; // Não deixa enviar sem nome
+
+    setIsSubmitting(true);
+
+    const result = await createOrder(checkoutName, items);
+
+    if (result.success) {
+      alert(`Pedido ${result.orderId} realizado com sucesso! 🚀`);
+      clearCart(); // Limpa o carrinho
+      setCheckoutName(""); // Limpa o nome
+      // Aqui futuramente vamos redirecionar para a página de acompanhamento
+    } else {
+      alert("Erro: " + result.message);
+    }
+
+    setIsSubmitting(false);
+  }
+
   return (
     <Sheet>
-      {/* O GATILHO (Botão que fica no Header) */}
       <SheetTrigger asChild>
         <Button variant="outline" className="relative" size="icon">
           <ShoppingCart className="h-5 w-5" />
@@ -36,27 +60,28 @@ export function CartSidebar() {
         </Button>
       </SheetTrigger>
 
-      {/* O CONTEÚDO (A gaveta que abre) */}
-      <SheetContent className="flex flex-col h-full">
+      <SheetContent className="flex flex-col h-full w-full sm:max-w-md">
         <SheetHeader>
           <SheetTitle>Seu Pedido</SheetTitle>
         </SheetHeader>
 
-        {/* LISTA DE ITENS */}
         <div className="flex-1 overflow-y-auto py-4">
           {items.length === 0 ? (
-            <p className="text-center text-gray-500 mt-10">
-              Seu carrinho está vazio 😔
-            </p>
+            <div className="flex flex-col items-center justify-center h-full text-center space-y-4">
+              <ShoppingCart className="h-12 w-12 text-gray-300" />
+              <p className="text-gray-500">Seu carrinho está vazio 😔</p>
+              <p className="text-sm text-gray-400">
+                Adicione itens deliciosos do cardápio!
+              </p>
+            </div>
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-6">
               {items.map((item) => (
                 <div
                   key={item.id}
-                  className="flex justify-between items-center border-b pb-2"
+                  className="flex justify-between items-center border-b pb-4"
                 >
-                  {/* Nome e Preço */}
-                  <div>
+                  <div className="flex-1">
                     <p className="font-medium">{item.name}</p>
                     <p className="text-sm text-gray-500">
                       {new Intl.NumberFormat("pt-BR", {
@@ -66,25 +91,24 @@ export function CartSidebar() {
                     </p>
                   </div>
 
-                  {/* Controles (+ e -) */}
-                  <div className="flex items-center gap-2 bg-gray-100 rounded-md p-1">
+                  <div className="flex items-center gap-2 bg-gray-50 rounded-lg p-1 border">
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-6 w-6"
+                      className="h-8 w-8 hover:bg-white hover:shadow-sm rounded-md"
                       onClick={() => removeFromCart(item.id)}
                     >
                       <Minus className="h-3 w-3" />
                     </Button>
 
-                    <span className="text-sm font-bold w-4 text-center">
+                    <span className="text-sm font-bold w-6 text-center tabular-nums">
                       {item.quantity}
                     </span>
 
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-6 w-6"
+                      className="h-8 w-8 hover:bg-white hover:shadow-sm rounded-md"
                       onClick={() => addToCart(item)}
                     >
                       <Plus className="h-3 w-3" />
@@ -96,13 +120,13 @@ export function CartSidebar() {
           )}
         </div>
 
-        {/* RODAPÉ (Total e Botão Finalizar) */}
         {items.length > 0 && (
-          <SheetFooter className="mt-auto border-t pt-4">
-            <div className="w-full space-y-4">
+          <SheetFooter className="mt-auto border-t pt-6 bg-white">
+            <div className="w-full space-y-6">
+              {/* Resumo */}
               <div className="flex justify-between text-lg font-bold">
                 <span>Total:</span>
-                <span>
+                <span className="text-green-600">
                   {new Intl.NumberFormat("pt-BR", {
                     style: "currency",
                     currency: "BRL",
@@ -110,8 +134,24 @@ export function CartSidebar() {
                 </span>
               </div>
 
-              <Button className="w-full bg-green-600 hover:bg-green-700 h-12 text-lg">
-                Finalizar Pedido
+              {/* Formulário Simples */}
+              <div className="space-y-2">
+                <Label htmlFor="name">Seu Nome</Label>
+                <Input
+                  id="name"
+                  placeholder="Ex: João Silva"
+                  value={checkoutName}
+                  onChange={(e) => setCheckoutName(e.target.value)}
+                />
+              </div>
+
+              {/* Botão de Ação */}
+              <Button
+                className="w-full bg-green-600 hover:bg-green-700 h-12 text-lg font-bold shadow-md"
+                onClick={handleCheckout}
+                disabled={isSubmitting || !checkoutName.trim()}
+              >
+                {isSubmitting ? "Enviando..." : "Confirmar Pedido"}
               </Button>
             </div>
           </SheetFooter>
