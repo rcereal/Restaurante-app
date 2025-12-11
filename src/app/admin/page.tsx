@@ -1,5 +1,6 @@
 import { supabase } from "@/lib/supabase";
 import { OrderCard } from "@/components/admin/OrderCard";
+import { RealtimeOrders } from "@/components/admin/RealtimeOrders";
 
 export const revalidate = 0; // Atualiza sempre que entrar na pagina (sem cache)
 
@@ -27,6 +28,9 @@ export default async function AdminDashboard() {
 
   return (
     <main className="p-10 bg-gray-50 min-h-screen">
+      {/* Componente invisivel */}
+      <RealtimeOrders />
+
       <header className="mb-8 flex items-center justify-between">
         <h1 className="text-3xl font-bold text-gray-800 flex items-center gap-2">
           Painel da Cozinha 👨‍🍳
