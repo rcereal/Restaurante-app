@@ -14,9 +14,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ShoppingCart, Minus, Plus } from "lucide-react";
 import { useCartStore } from "@/store/use-cart-store";
-import { createOrder } from "@/actions/create-order"; // Nossa função nova!
+import { createOrder } from "@/actions/create-order";
+import { useRouter } from "next/navigation";
 
 export function CartSidebar() {
+  const router = useRouter();
   const { items, addToCart, removeFromCart, clearCart } = useCartStore();
   const [checkoutName, setCheckoutName] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -36,10 +38,11 @@ export function CartSidebar() {
     const result = await createOrder(checkoutName, items);
 
     if (result.success) {
-      alert(`Pedido ${result.orderId} realizado com sucesso! 🚀`);
       clearCart(); // Limpa o carrinho
       setCheckoutName(""); // Limpa o nome
-      // Aqui futuramente vamos redirecionar para a página de acompanhamento
+      document.getElementById("close-cart")?.click();
+
+      router.push(`/order/${result.orderId}`);
     } else {
       alert("Erro: " + result.message);
     }
