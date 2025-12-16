@@ -8,6 +8,7 @@ export default async function Home() {
   const { data: products, error } = await supabase
     .from("products")
     .select("*, categories(name)")
+    .eq("is_available", true)
     .returns<Product[]>();
 
   if (error) {

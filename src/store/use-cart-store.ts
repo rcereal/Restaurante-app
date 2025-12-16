@@ -38,7 +38,7 @@ export const useCartStore = create<CartState>((set) => ({
       return { items: [...state.items, { ...product, quantity: 1 }] };
     }),
 
-  // NOVA LÓGICA: Se tiver mais de 1, diminui. Se for 1, remove.
+  // Se tiver mais de 1, diminui. Se for 1, remove.
   removeFromCart: (productId) =>
     set((state) => {
       const existingItem = state.items.find((item) => item.id === productId);
