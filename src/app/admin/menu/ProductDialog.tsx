@@ -110,15 +110,40 @@ export function ProductDialog({ productToEdit }: ProductDialogProps) {
             </div>
           </div>
 
-          {/* Imagem (URL) */}
+          {/* Campo de Upload de Imagem */}
           <div className="grid gap-2">
-            <Label htmlFor="image_url">URL da Imagem</Label>
+            <Label htmlFor="image_file">Foto do Produto</Label>
+
+            {/* Input do tipo FILE */}
             <Input
-              id="image_url"
-              name="image_url"
-              defaultValue={productToEdit?.image_url || ""}
-              placeholder="https://..."
+              id="image_file"
+              name="image_file"
+              type="file"
+              accept="image/*"
             />
+
+            {/* Input escondido para manter a URL antiga caso o usuário não envie foto nova */}
+            {isEditing && (
+              <input
+                type="hidden"
+                name="existing_image_url"
+                value={productToEdit?.image_url || ""}
+              />
+            )}
+
+            {/* Preview (opcional, mostra se já tem foto) */}
+            {productToEdit?.image_url && (
+              <div className="text-xs text-gray-500 mt-1">
+                Foto atual:{" "}
+                <a
+                  href={productToEdit.image_url}
+                  target="_blank"
+                  className="text-blue-500 underline"
+                >
+                  Ver imagem
+                </a>
+              </div>
+            )}
           </div>
 
           {/* Descrição */}

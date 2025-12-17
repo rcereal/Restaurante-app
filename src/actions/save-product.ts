@@ -4,20 +4,46 @@ import { supabase } from "@/lib/supabase";
 import { revalidatePath } from "next/cache";
 
 export async function saveProduct(formData: FormData) {
-  // Pegamos os dados do formulário HTML
-  const id = formData.get("id")?.toString(); // Se tiver ID, é edição
+  const id = formData.get("id")?.toString();
   const name = formData.get("name")?.toString();
   const price = parseFloat(
     formData.get("price")?.toString().replace("R$", "").replace(",", ".") || "0"
   );
   const description = formData.get("description")?.toString();
-  const imageUrl = formData.get("image_url")?.toString();
   const categoryId = parseInt(formData.get("category_id")?.toString() || "1");
 
+  // 1. Pegamos o arquivo enviado
+  const imageFile = formData.get("image_file") as File;
+  let imageUrl = formData.get("existing_image_url")?.toString(); // Mantém a antiga se não mudar
+
   try {
+    // 2. Se tiver um novo arquivo, fazemos o upload
+    if (imageFile && imageFile.size > 0) {
+      // Criamos um nome único para não substituir fotos de outros produtos
+      // Ex: 123456789-x-bacon.png
+      const fileName = `${Date.now()}-${imageFile.name.replace(/\s/g, "-")}`;
+
+      const { data: storageData, error: storageError } = await supabase.storage
+        .from("products") // Nome do bucket que criamos
+        .upload(fileName, imageFile, {
+          cacheControl: "3600",
+          upsert: false,
+        });
+
+      if (storageError)
+        throw new Error("Erro no upload: " + storageError.message);
+
+      // 3. Pegamos a URL pública para salvar no banco
+      const { data: publicUrlData } = supabase.storage
+        .from("products")
+        .getPublicUrl(fileName);
+
+      imageUrl = publicUrlData.publicUrl;
+    }
+
+    // 4. Salva no Banco de Dados (Igual antes)
     if (id) {
-      // --- EDIÇÃO (UPDATE) ---
-      const { error } = await supabase
+      await supabase
         .from("products")
         .update({
           name,
@@ -27,22 +53,16 @@ export async function saveProduct(formData: FormData) {
           category_id: categoryId,
         })
         .eq("id", id);
-
-      if (error) throw error;
     } else {
-      // --- CRIAÇÃO (INSERT) ---
-      const { error } = await supabase.from("products").insert({
+      await supabase.from("products").insert({
         name,
         price,
         description,
         image_url: imageUrl,
         category_id: categoryId,
       });
-
-      if (error) throw error;
     }
 
-    // Atualiza as telas para mostrar o novo dado
     revalidatePath("/admin/menu");
     revalidatePath("/");
 
