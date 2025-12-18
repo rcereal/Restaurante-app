@@ -1,6 +1,11 @@
-import { createClient } from "@supabase/supabase-js";
+import { createBrowserClient } from "@supabase/ssr";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+// Função para criar o cliente no Navegador (Client Components)
+export const createClient = () =>
+  createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+// Mantemos a exportação padrão para compatibilidade, mas agora como função
+export const supabase = createClient();
