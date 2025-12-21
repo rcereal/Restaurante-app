@@ -1,5 +1,11 @@
 import Link from "next/link";
-import { LayoutDashboard, Menu, Settings, LogOut } from "lucide-react";
+import {
+  LayoutDashboard,
+  Menu,
+  DollarSign,
+  Settings,
+  LogOut,
+} from "lucide-react";
 
 export default function AdminLayout({
   children,
@@ -28,6 +34,13 @@ export default function AdminLayout({
           >
             <Menu className="h-5 w-5" />
             Cardápio
+          </Link>
+          <Link
+            href="/admin/finance"
+            className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-orange-50 hover:text-orange-600 rounded-lg trasition-colors"
+          >
+            <DollarSign className="h-5 w-5" />
+            Financeiro
           </Link>
           <Link
             href="#"
