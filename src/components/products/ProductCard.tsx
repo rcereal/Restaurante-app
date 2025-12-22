@@ -2,6 +2,7 @@
 import { Product } from "@/types";
 import { Button } from "@/components/ui/button";
 import { useCartStore } from "@/store/use-cart-store";
+import { toast } from "sonner";
 
 interface ProductCardProps {
   product: Product;
@@ -51,7 +52,10 @@ export function ProductCard({ product }: ProductCardProps) {
           className="bg-orange-600 hover:bg-orange-700 text-white"
           onClick={() => {
             addToCart(product);
-            alert("Adicionado: " + product.name); // Feedback temporário
+            toast.success(`${product.name} adicionado!`, {
+              duration: 2000,
+              position: "bottom-center",
+            }); // Feedback temporário
           }}
         >
           Adicionar

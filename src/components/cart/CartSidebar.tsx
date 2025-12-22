@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { use, useState } from "react";
 import {
   Sheet,
   SheetContent,
@@ -16,10 +16,12 @@ import { ShoppingCart, Minus, Plus } from "lucide-react";
 import { useCartStore } from "@/store/use-cart-store";
 import { createOrder } from "@/actions/create-order";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 export function CartSidebar() {
   const router = useRouter();
   const { items, addToCart, removeFromCart, clearCart } = useCartStore();
+  const [open, setOpen] = useState(false);
   const [checkoutName, setCheckoutName] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -32,26 +34,35 @@ export function CartSidebar() {
   // Função que roda ao clicar em "Finalizar"
   async function handleCheckout() {
     if (!checkoutName.trim()) return; // Não deixa enviar sem nome
-
     setIsSubmitting(true);
 
     const result = await createOrder(checkoutName, items);
 
     if (result.success) {
+      toast.success("Pedido realizado com sucesso!", {
+        description: `O pedido #${result.orderId} foi enviado para a cozinha`,
+        action: {
+          label: "Ver Pedido",
+          onClick: () => router.push(`/order/${result.orderId}`),
+        },
+      });
+
       clearCart(); // Limpa o carrinho
+      setOpen(false);
       setCheckoutName(""); // Limpa o nome
-      document.getElementById("close-cart")?.click();
 
       router.push(`/order/${result.orderId}`);
     } else {
-      alert("Erro: " + result.message);
+      toast.error("Falha ao criar pedido", {
+        description: result.message,
+      });
     }
 
     setIsSubmitting(false);
   }
 
   return (
-    <Sheet>
+    <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
         <Button variant="outline" className="relative" size="icon">
           <ShoppingCart className="h-5 w-5" />
