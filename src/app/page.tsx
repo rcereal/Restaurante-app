@@ -1,36 +1,35 @@
 import { supabase } from "@/lib/supabase";
 import { Product } from "@/types";
-import { ProductCard } from "@/components/products/ProductCard";
+import { Menu } from "@/components/products/Menu"; // Importe o componente novo
 
-export const revalidate = 0; // Opcional: Garante que a página sempre busque dados novos (sem cache estático)
+export const revalidate = 0;
 
 export default async function Home() {
-  const { data: products, error } = await supabase
+  // 1. Buscamos Produtos Ativos
+  const { data: products } = await supabase
     .from("products")
     .select("*, categories(name)")
     .eq("is_available", true)
+    .order("name")
     .returns<Product[]>();
 
-  if (error) {
-    console.error("Erro ao carregar produtos:", error);
-    return <div className="p-10 text-red-500">Erro ao carregar cardápio.</div>;
-  }
+  // 2. Buscamos Categorias (Para montar os botões)
+  const { data: categories } = await supabase
+    .from("categories")
+    .select("*")
+    .order("name");
 
   return (
-    <main className="max-w-7xl mx-auto p-8">
-      <header className="mb-10 text-center">
-        <h1 className="text-4xl font-bold text-gray-900 mb-2">
+    <main className="max-w-7xl mx-auto p-4 md:p-8">
+      <div className="text-center mb-12 space-y-2">
+        <h1 className="text-4xl font-bold text-gray-900 tracking-tight">
           Nosso Cardápio
         </h1>
-        <p className="text-gray-600">Escolha suas delícias favoritas</p>
-      </header>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-        {products?.map((product) => (
-          // Passamos o dado "product" para dentro do componente
-          <ProductCard key={product.id} product={product} />
-        ))}
+        <p className="text-lg text-gray-600">Escolha suas delícias favoritas</p>
       </div>
+
+      {/* 3. Entregamos os dados para o Menu fazer a mágica */}
+      <Menu products={products || []} categories={categories || []} />
     </main>
   );
 }

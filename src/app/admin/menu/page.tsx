@@ -17,6 +17,11 @@ export default async function AdminMenuPage() {
     .order("name", { ascending: true })
     .returns<Product[]>();
 
+  const { data: categories } = await supabase
+    .from("categories")
+    .select("*")
+    .order("name");
+
   if (error) {
     return <div className="p-10 text-red-500">Erro: {error.message}</div>;
   }
@@ -29,7 +34,7 @@ export default async function AdminMenuPage() {
           <p className="text-gray-500">Gerencie seus produtos ativos</p>
         </div>
         {/* Botao de Criar */}
-        <ProductDialog />
+        <ProductDialog categories={categories || []} />
       </header>
 
       <div className="bg-white rounded-lg border shadow-sm overflow-hidden">
@@ -70,8 +75,11 @@ export default async function AdminMenuPage() {
                   }).format(product.price)}
                 </td>
                 <td className="p-4 text-right space-x-2 flex justify-end">
-                  {/* Botão Editar (Visual) */}
-                  <ProductDialog productToEdit={product} />
+                  {/* Botão Editar */}
+                  <ProductDialog
+                    productToEdit={product}
+                    categories={categories || []}
+                  />
 
                   {/* Formulário de Deletar */}
                   <form

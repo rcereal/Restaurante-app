@@ -8,6 +8,13 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,12 +22,19 @@ import { Textarea } from "@/components/ui/textarea";
 import { saveProduct } from "@/actions/save-product";
 import { Product } from "@/types";
 import { PlusCircle, Pencil, Loader2 } from "lucide-react";
-
+interface Category {
+  id: number;
+  name: string;
+}
 interface ProductDialogProps {
-  productToEdit?: Product; // Opcional: Se vier, é modo Edição
+  productToEdit?: Product;
+  categories: Category[];
 }
 
-export function ProductDialog({ productToEdit }: ProductDialogProps) {
+export function ProductDialog({
+  productToEdit,
+  categories,
+}: ProductDialogProps) {
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -98,15 +112,25 @@ export function ProductDialog({ productToEdit }: ProductDialogProps) {
               />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="category_id">Categoria ID</Label>
-              {/* Por simplicidade, usaremos ID numérico (1=Lanches, 2=Bebidas). Futuro: Select */}
-              <Input
-                id="category_id"
+              <Label htmlFor="category_id">Categoria</Label>
+              <Select
                 name="category_id"
-                required
-                defaultValue={productToEdit?.category_id}
-                type="number"
-              />
+                defaultValue={productToEdit?.category_id?.toString() || ""}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione uma categoria" />
+                </SelectTrigger>
+                <SelectContent>
+                  {categories.map((category) => (
+                    <SelectItem
+                      key={category.id}
+                      value={category.id.toString()}
+                    >
+                      {category.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
 
