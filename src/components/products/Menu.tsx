@@ -44,7 +44,7 @@ export function Menu({ products, categories }: MenuProps) {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
           <Input
             placeholder="Buscar lanche, bebida..."
-            className="pl-10 bg-white"
+            className="pl-10 bg-white dark:bg-zinc-900 dark:border-zinc-700"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />

@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { Header } from "@/components/Header";
+// MUDANÇA 1: Importamos o Wrapper, e não o Header direto
+import { HeaderWrapper } from "@/components/HeaderWrapper";
 import { Toaster } from "sonner";
+import { ThemeProvider } from "@/components/theme-provider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -25,16 +27,25 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="pt-BR" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-50`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground`}
         suppressHydrationWarning={true}
       >
-        <Header />
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          {/* MUDANÇA 2: Usamos o Wrapper aqui. 
+             Ele vai esconder a barra preta quando estivermos no /admin */}
+          <HeaderWrapper />
 
-        {children}
+          {children}
 
-        <Toaster />
+          <Toaster />
+        </ThemeProvider>
       </body>
     </html>
   );
