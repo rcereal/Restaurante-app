@@ -2,6 +2,7 @@
 
 import { updateOrderStatus } from "@/actions/update-order-status";
 import { Button } from "../ui/button";
+import { OrderDetailsDialog } from "./OrderDetailsDialog"; // Import do Modal
 
 interface OrderCardProps {
   order: any;
@@ -12,14 +13,16 @@ export function OrderCard({ order }: OrderCardProps) {
     await updateOrderStatus(order.id, newStatus);
   };
 
+  // Lógica para limitar itens visíveis no card (evita cards gigantes)
+  const visibleItems = order.order_items.slice(0, 2); // Pega só os 2 primeiros
+  const remainingItemsCount = order.order_items.length - 2;
+
   return (
     <div
       className={`p-6 rounded-xl shadow-sm border flex flex-col transition-all duration-300 ${
         order.status === "DONE"
-          ? // Opacidade para itens concluídos
-            "bg-gray-50 dark:bg-zinc-900/50 border-gray-100 dark:border-zinc-800 opacity-60"
-          : // Estilo padrão: Fundo branco no claro, Zinc-900 no escuro
-            "bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800"
+          ? "bg-gray-50 dark:bg-zinc-900/50 border-gray-100 dark:border-zinc-800 opacity-60"
+          : "bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800"
       }`}
     >
       {/* Cabeçalho */}
@@ -41,7 +44,6 @@ export function OrderCard({ order }: OrderCardProps) {
               : "CONCLUÍDO"}
           </span>
 
-          {/* MUDANÇA: text-gray-900 no claro, text-gray-50 no escuro */}
           <h2 className="text-xl font-bold mt-2 text-gray-900 dark:text-gray-50">
             #{order.id} - {order.customer_name}
           </h2>
@@ -63,9 +65,10 @@ export function OrderCard({ order }: OrderCardProps) {
         </div>
       </div>
 
-      {/* Itens */}
-      <div className="space-y-2 mb-6 flex-1">
-        {order.order_items.map((item: any) => (
+      {/* Itens (Resumido) */}
+      <div className="space-y-2 mb-4 flex-1">
+        {/* MUDANÇA: Usamos visibleItems em vez de order.order_items */}
+        {visibleItems.map((item: any) => (
           <div key={item.id} className="flex justify-between text-sm">
             <span className="text-gray-600 dark:text-gray-300">
               <span className="font-bold text-gray-900 dark:text-gray-100">
@@ -75,6 +78,16 @@ export function OrderCard({ order }: OrderCardProps) {
             </span>
           </div>
         ))}
+
+        {/* MUDANÇA: Se tiver mais itens escondidos, mostra aviso */}
+        {remainingItemsCount > 0 && (
+          <p className="text-xs text-gray-400 italic mt-1">
+            + {remainingItemsCount} outros itens...
+          </p>
+        )}
+
+        {/* MUDANÇA: Botão que abre o Modal com tudo */}
+        <OrderDetailsDialog order={order} />
       </div>
 
       {/* Botões Inteligentes */}
