@@ -12,7 +12,6 @@ export default function LoginPage() {
   const router = useRouter();
   const supabase = createClient();
 
-  // 1. Criamos estados para guardar o que é digitado
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -20,13 +19,10 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
 
   async function handleLogin(e: React.FormEvent) {
-    e.preventDefault(); // Impede a página de recarregar
+    e.preventDefault();
     setLoading(true);
     setError(null);
 
-    console.log("Tentando logar (via State):", { email, password }); // Debug (se preciso tirar depois)
-
-    // 2. Enviamos os estados direto para o Supabase
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -57,24 +53,32 @@ export default function LoginPage() {
 
         <form onSubmit={handleLogin} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email" className="text-gray-700">
+              Email
+            </Label>
             <Input
               id="email"
               type="email"
               required
               value={email}
-              onChange={(e) => setEmail(e.target.value)} // Atualiza o estado ao digitar
+              onChange={(e) => setEmail(e.target.value)}
+              // MUDANÇA: text-gray-900 força a cor escura
+              className="text-gray-900 bg-white border-gray-300 focus:ring-orange-500"
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="password">Senha</Label>
+            <Label htmlFor="password" className="text-gray-700">
+              Senha
+            </Label>
             <Input
               id="password"
               type="password"
               required
               value={password}
-              onChange={(e) => setPassword(e.target.value)} // Atualiza o estado ao digitar
+              onChange={(e) => setPassword(e.target.value)}
+              // MUDANÇA: text-gray-900 força a cor escura
+              className="text-gray-900 bg-white border-gray-300 focus:ring-orange-500"
             />
           </div>
 
@@ -86,7 +90,7 @@ export default function LoginPage() {
 
           <Button
             type="submit"
-            className="w-full bg-orange-600 hover:bg-orange-700"
+            className="w-full bg-orange-600 hover:bg-orange-700 text-white"
             disabled={loading}
           >
             {loading ? (
